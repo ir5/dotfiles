@@ -1,0 +1,15 @@
+[user]
+	name = Mitsuru Kusumoto
+	email = example@example.com
+[core]
+	editor = vim
+	pager = less -c
+[color]
+	ui = true
+[color "diff"]
+	meta = yellow normal bold
+[alias]
+	co = checkout
+	st = status
+	ci = commit
+	di = diff
