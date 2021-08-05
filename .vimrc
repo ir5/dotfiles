@@ -74,8 +74,8 @@ set scrolloff=5
 
 set nobackup
 set nowritebackup
-"set backupdir=~/.vimbackup
-"let &directory=&backupdir
+set backupdir=~/.vimbackup
+let &directory=&backupdir
 
 set hidden
 
