@@ -94,6 +94,31 @@ if lazy_available then
               theme = "everforest",
               globalstatus = false,
             },
+            tabline = {
+              lualine_a = {
+                {
+                  "tabs",
+                  mode = 1,
+                  max_length = vim.o.columns,
+                  show_modified_status = false,
+                  tabs_color = {
+                    active = "TabLineSel",
+                    inactive = "TabLine",
+                  },
+                  fmt = function(_, context)
+                    local buflist = fn.tabpagebuflist(context.tabnr)
+                    local winnr = fn.tabpagewinnr(context.tabnr)
+                    local bufname = fn.fnamemodify(fn.bufname(buflist[winnr]), ":t")
+                    return context.tabnr .. ": " .. (bufname == "" and "No name" or bufname)
+                  end,
+                },
+              },
+              lualine_b = {},
+              lualine_c = {},
+              lualine_x = {},
+              lualine_y = {},
+              lualine_z = {},
+            },
           })
         end,
       },
@@ -108,9 +133,6 @@ end
 
 local function apply_colorscheme()
   if pcall(vim.cmd.colorscheme, "everforest") then
-    return
-  end
-  if pcall(vim.cmd.colorscheme, "zenburn") then
     return
   end
   if pcall(vim.cmd.colorscheme, "retrobox") then
@@ -217,52 +239,9 @@ for i = 1, 9 do
   map("n", "<Tab>" .. i, i .. "gt", silent)
 end
 map("n", "<Tab>0", "10gt", silent)
-map("n", "<Tab>s", "<Cmd>tabs<CR>", silent)
 map("n", ",eeuc", "<Cmd>edit ++enc=eucJP<CR>", silent)
 map("n", ",eutf", "<Cmd>edit ++enc=utf-8<CR>", silent)
 map("n", "B", "<Cmd>cd %:h<CR>", silent)
-
-local function set_tabline_highlights()
-  vim.api.nvim_set_hl(0, "TabLine", { ctermfg = 187, ctermbg = 236 })
-  vim.api.nvim_set_hl(0, "TabLineSel", { ctermfg = 230, ctermbg = 65, bold = true })
-  vim.api.nvim_set_hl(0, "TabLineFill", { ctermfg = 187, ctermbg = 235 })
-end
-
-set_tabline_highlights()
-
-vim.api.nvim_create_autocmd("ColorScheme", {
-  callback = set_tabline_highlights,
-})
-
-function _G.MyTabLabel(n)
-  local buflist = fn.tabpagebuflist(n)
-  local winnr = fn.tabpagewinnr(n)
-  local buflen = fn.tabpagewinnr(n, "$")
-  local bufname = fn.fnamemodify(fn.bufname(buflist[winnr]), ":t")
-  local label = n .. ": "
-  label = label .. (bufname == "" and "No name" or bufname)
-  label = label .. "[" .. buflen .. "]"
-  return label
-end
-
-function _G.MyTabLine()
-  local s = ""
-  for i = 1, fn.tabpagenr("$") do
-    if i == fn.tabpagenr() then
-      s = s .. "%#TabLineSel#"
-    else
-      s = s .. "%#TabLine#"
-    end
-    s = s .. "%" .. i .. "T"
-    s = s .. " %{v:lua.MyTabLabel(" .. i .. ")} "
-  end
-  s = s .. "%#TabLineFill#%T"
-  if fn.tabpagenr("$") > 1 then
-    s = s .. "%=%#TabLine#%999Xx"
-  end
-  return s
-end
-opt.tabline = "%!v:lua.MyTabLine()"
 
 local augroup = vim.api.nvim_create_augroup("dotfiles_nvim", { clear = true })
 
@@ -284,24 +263,6 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
     opt_local.shiftwidth = 4
     opt_local.indentkeys:append("0#")
   end,
-})
-
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-  group = augroup,
-  pattern = "wscript",
-  command = "setfiletype python",
-})
-
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-  group = augroup,
-  pattern = "*.prototxt",
-  command = "setfiletype python",
-})
-
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-  group = augroup,
-  pattern = "*.bql",
-  command = "setfiletype sql",
 })
 
 vim.api.nvim_create_autocmd("FileType", {
