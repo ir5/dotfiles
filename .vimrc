@@ -26,15 +26,15 @@ Plugin 'altercation/vim-colors-solarized'
 Bundle 'L9'
 Bundle 'FuzzyFinder'
 " Plugin 'rust-lang/rust.vim'
-Plugin 'leafgarland/typescript-vim'
+" Plugin 'leafgarland/typescript-vim'
 
-Plugin 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plugin 'junegunn/fzf.vim'
+" Plugin 'junegunn/fzf', { 'do': { -> fzf#install() } }
+" Plugin 'junegunn/fzf.vim'
 
 " Coc.nvim:
 " https://github.com/neoclide/coc.nvim
 " https://github.com/neoclide/coc-rls
-Plugin 'neoclide/coc.nvim', {'branch': 'release'}
+" Plugin 'neoclide/coc.nvim', {'branch': 'release'}
 
 Plugin 'vim-airline/vim-airline'
 
@@ -60,6 +60,8 @@ set wrapscan
 set showmatch
 set wildmenu
 set formatoptions+=mM
+set formatoptions-=r
+set formatoptions-=o
 
 syntax on
 set number
@@ -199,12 +201,42 @@ colorscheme zenburn
 set hls
 
 "-------------------------------------------------------------------------------
-" C++11
+" C++20
 "-------------------------------------------------------------------------------
-let g:syntastic_cpp_compiler_options = ' -std=c++14 -Wall'
+let g:syntastic_cpp_compiler_options = ' -std=c++20 -Wall -Wno-unused-variable -I ~/ac-library'
 let g:syntastic_cpp_check_header = 1
+autocmd FileType c,cc,cpp setlocal formatoptions-=r formatoptions-=o
 
 "-------------------------------------------------------------------------------
 " powerline
 "-------------------------------------------------------------------------------
 let g:airline_powerline_fonts = 1
+
+"-------------------------------------------------------------------------------
+" procon
+"-------------------------------------------------------------------------------
+command! -nargs=1 CC call s:CreateNewCC(<f-args>)
+function! s:CreateNewCC(name) abort
+  " ファイルが存在しているかチェック
+  if filereadable(a:name . '.cc')
+    echoerr "File " . a:name . ".cc already exists!"
+    return
+  endif
+
+  " 存在しなければ新規作成して開く
+  execute 'edit ' . a:name . '.cc'
+
+  " テンプレートを先頭に読み込む
+  execute '0read ~/alglib/template.h'
+
+  "    末尾が空行なら削除する
+  "    getline('$') はファイルの最終行を文字列として取得します。
+  "    もし空文字列なら末尾行を削除 ( $delete ) します。
+  if getline('$') ==# ''
+    execute '$delete'
+  endif
+
+  write
+
+  normal! gg
+endfunction

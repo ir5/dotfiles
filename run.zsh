@@ -9,8 +9,12 @@ done
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 mkdir ~/.vimbackup
 
+# nvim の設定
+mkdir -p ${HOME}/.config
+
 # シンボリックリンクを貼る
 rm ${HOME}/.zpreztorc ${HOME}/.zshrc
 for i in .gitconfig .tmux.conf .vimrc .zpreztorc .zshrc; do
   ln -s ${PWD}/${i} ${HOME}/${i}
 done
+ln -sfnT ${PWD}/nvim ${HOME}/.config/nvim
