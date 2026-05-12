@@ -162,8 +162,29 @@ if vim.lsp and vim.lsp.config then
     root_markers = { "pyproject.toml", "ruff.toml", ".ruff.toml", ".git" },
   }
 
+  vim.lsp.config.clangd = {
+    cmd = {
+      "clangd",
+      "--fallback-style=none",
+      "--query-driver=/usr/bin/g++,/usr/bin/clang++",
+    },
+    init_options = {
+      fallbackFlags = {
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-pedantic",
+        "-Wno-unused-variable",
+        "-I/home/mkusumoto/ac-library",
+      },
+    },
+    filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
+    root_markers = { ".clangd", "compile_commands.json", "compile_flags.txt", ".git" },
+  }
+
   if vim.lsp.enable then
     vim.lsp.enable("ruff")
+    vim.lsp.enable("clangd")
   end
 end
 
