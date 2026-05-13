@@ -47,13 +47,36 @@ if lazy_available then
         },
         config = function()
           local fb_actions = require("telescope").extensions.file_browser.actions
+          local actions = require("telescope.actions")
           local action_state = require("telescope.actions.state")
           local action_set = require("telescope.actions.set")
+
+          local function edit_prompt_as_new_buffer(prompt_bufnr)
+            local prompt = action_state.get_current_line()
+            if prompt == "" then
+              return false
+            end
+
+            local picker = action_state.get_current_picker(prompt_bufnr)
+            local finder = picker.finder
+            local base_dir = finder.files and finder.path or finder.cwd
+            local path = base_dir .. package.config:sub(1, 1) .. prompt
+            actions.close(prompt_bufnr)
+            vim.cmd.edit(vim.fn.fnameescape(path))
+            return true
+          end
+
+          local function create_buffer_from_prompt(prompt_bufnr)
+            edit_prompt_as_new_buffer(prompt_bufnr)
+          end
 
           local function select_or_goto_home(prompt_bufnr)
             local prompt = action_state.get_current_line()
             if prompt == "~" or prompt == "~/" then
               fb_actions.goto_home_dir(prompt_bufnr)
+              return
+            end
+            if not action_state.get_selected_entry() and edit_prompt_as_new_buffer(prompt_bufnr) then
               return
             end
             action_set.select(prompt_bufnr, "default")
@@ -70,12 +93,15 @@ if lazy_available then
                 hijack_netrw = true,
                 hide_parent_dir = false,
                 hidden = { file_browser = false, folder_browser = false },
+                create_from_prompt = false,
                 mappings = {
                   i = {
                     ["<CR>"] = select_or_goto_home,
+                    ["<C-j>"] = create_buffer_from_prompt,
                   },
                   n = {
                     ["<CR>"] = select_or_goto_home,
+                    ["<C-j>"] = create_buffer_from_prompt,
                   },
                 },
               },
